@@ -49,7 +49,8 @@ class UsersController < ApplicationController
   end
 
 
-  #should return platts for a specified user
+  # GET /users/splatts/1
+  # GET /users/splatts/1.json
   def splatts
     @user = User.find(params[:id])
 
