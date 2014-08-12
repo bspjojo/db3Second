@@ -35,9 +35,11 @@ class SplattsController < ApplicationController
 
     head :no_content
   end
-end
 
 private
 	def splatts_params(params)
 		params.permit(:body, :user_id)
 	end
+
+#end of file
+end

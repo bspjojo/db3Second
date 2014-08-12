@@ -47,7 +47,6 @@ class UsersController < ApplicationController
 
     head :no_content
   end
-end
 
 private
 
@@ -55,3 +54,6 @@ private
     params.permit(:email, :password, :name, :blurb)
   end
 
+
+#end of file
+end
