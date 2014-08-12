@@ -48,6 +48,14 @@ class UsersController < ApplicationController
     head :no_content
   end
 
+
+  #should return platts for a specified user
+  def splatts
+    @user = User.find(params[:id])
+
+    render json: @user.splatts
+  end
+
 private
 
   def user_params(params)
