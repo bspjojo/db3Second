@@ -99,6 +99,13 @@ class UsersController < ApplicationController
     head :no_content
   end
 
+  #shows splatts for a particular user
+  #GET /users/splatts-feed/1
+  def splatts_feed
+    @user = User.find(params[:id])
+    @feed = Splatt.find_by_sql("select * from Splatt left join User on User.id = Splatt.user_id")
+
+    render json: @feed
 private
 
   def user_params(params)
