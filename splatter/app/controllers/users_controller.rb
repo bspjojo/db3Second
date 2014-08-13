@@ -105,6 +105,5 @@ private
     params.permit(:email, :password, :name, :blurb)
   end
 
-
 #end of file
 end
