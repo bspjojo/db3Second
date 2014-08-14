@@ -11,8 +11,6 @@ class UsersController < ApplicationController
   # GET /users/1.json
   def show
     @user = User.find(params[:id])
-
-    render json: @user
   end
 
   # POST /users
@@ -80,7 +78,7 @@ class UsersController < ApplicationController
   #POST /users/follows
   def add_follows
     @userOne = User.find(params[:id])
-    @userTwo = User.find(params[:follower_id])
+    @userTwo = User.find(params[:follows_id])
 
     @userOne.follows << @userTwo
 
