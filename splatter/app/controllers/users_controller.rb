@@ -90,7 +90,7 @@ class UsersController < ApplicationController
   #DELETE /users/follows/1/2.json
   def delete_follows 
     @userOne = User.find(params[:id])
-    @userTwo = User.find(params[:follower_id])
+    @userTwo = User.find(params[:follows_id])
     
     @userOne.follows.delete(@userTwo)
 
