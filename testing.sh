@@ -49,7 +49,7 @@ echo"done"
 
 read -p
 echo"user 1 has had a fall out with user 3"
-curl -i -H "Content-type: application/json" -X DELETE http://thompson.sqrawler.com:3000/users/follows/1/3
+curl -i -H "Content-type: application/json" -X DELETE http://thompson.sqrawler.com:3000/users/1/3
 echo"user 1 no longer follows user 3"
 
 read -p
