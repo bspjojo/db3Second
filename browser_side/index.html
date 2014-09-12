@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html ng-app="splatter-web">
+	<head>
+		<title>Basic Splatter Client</title>
+		<script src="angular.min.js"></script>
+		<script src="angular-resource.js"></script>
+		<script src="app.js"></script>
+	</head>
+	<body>
+		<div ng-controller="LoginController as loginCtrl">
+		
+		<!--view information on any user using the id-->
+			<div ng-controller="AccountViewer as accview">
+				<form name="view_account_form" ng-submit="accview.getUser()">
+					<fieldset>
+					<p>Name: {{accview.user.name}}</p>
+					<p>Email: {{accview.user.email}}</p>
+					<p>Blurb: {{accview.user.blurb}}</p>
+					<p></p>
+					<legend> View Account </legend>
+					<input type="text" name="id" ng-model="accview.id" />
+					<input type="submit" value="Login" />
+
+
+					</fieldset>
+				</form>
+			</div>
+
+		<!-- logged out options-->
+			<div class="form_holder" ng-hide="loginCtrl.logged_in">
+				<form name="loginForm" ng-submit="loginCtrl.login()">
+					<fieldset>
+					<legend> Login </legend>
+					<input type="text" name="id" ng-model="loginCtrl.id" />
+					<input type="submit" value="Login" />
+					</fieldset>
+				</form>
+
+				Or
+
+				<form name="createAccountForm" ng-submit="loginCtrl.createAccount()">
+					<fieldset>
+					<legend> Create Account </legend>
+					<p>Desired Username: </p>
+					<input type="text" name="name" ng-model="loginCtrl.name" />
+					{{loginCtrl.name}}
+
+					<p>Desired Email:</p>
+					<input type="text" name="email" ng-model="loginCtrl.email" />
+					{{loginCtrl.email}}
+
+					<p>Desired Password: </p>
+					<input type="text" name="password" ng-model="loginCtrl.password" />
+					{{loginCtrl.password}}
+					<input type="submit" value="Create Account" />
+					</fieldset>
+				</form>
+			</div>
+			
+		<!-- logged in options-->
+			<div class="form_holder" ng-show="loginCtrl.logged_in">
+
+				<form name="loginForm" ng-submit="loginCtrl.logout()">
+					<input type="submit" value="Log Out" />
+				</form>
+
+				<form name="loginForm" ng-submit="loginCtrl.deleteAccount()">
+					<input type="submit" value="Delete Account" />
+				</form>
+
+				<!--<p>{{loginCtrl.user}}</p>
+				<p>User Id: {{loginCtrl.user.user_id}}</p>-->
+				<p>User Name: {{loginCtrl.user.name}}</p>
+				<p>User Email: {{loginCtrl.user.email}}</p>
+				<p>User Blurb: {{loginCtrl.user.blurb}}</p>
+
+				<ul>
+					<li ng-click="loginCtrl.tab = 0">Home</li>
+					<li ng-click="loginCtrl.tab = 1">Edit</li>
+					<li ng-click="loginCtrl.tab = 2">Splatts Feed</li>
+					<li ng-click="loginCtrl.tab = 3">Own Splatts</li>
+					<li ng-click="loginCtrl.tab = 4">Following</li>
+					<li ng-click="loginCtrl.tab = 5">Followers</li>
+				</ul>
+			
+				<div ng-show="loginCtrl.tab === 0">
+
+					<div class="splatt_posting_form_holder" ng-controller="SplattPoster as post_machine">
+						<form ng-submit="post_machine.post_splatt(loginCtrl.user.user_id)">
+						<input type="text" ng-model="post_machine.body" required/> <br />
+						<input type="submit" value="Post" />
+						</form>
+					</div>
+
+					<div class="follow_control" ng-controller="FollowControl as followCtrl">
+
+						<div class="add_follows">
+							<form ng-submit="followCtrl.follow(loginCtrl.user.user_id, follow_id)">
+							<p>Person to follow (id): <input type="text" ng-model="follow_id" required/>
+							<input type="submit" value="Follow" /></p>
+							</form>
+						</div>
+						<div>
+							<form ng-submit="followCtrl.un_follow(loginCtrl.user.user_id, follow_id)">
+							<p>Person to un_follow (id): <input type="text" ng-model="follow_id" required/>
+							<input type="submit" value="Un Follow" /></p>
+							</form>
+						</div>
+					</div>
+				</div>
+
+
+				<form ng-submit="loginCtrl.editAccount()" ng-show="loginCtrl.tab === 1">
+					<input type="text" ng-model="loginCtrl.user.name" required/> <br />
+					<textarea ng-model="loginCtrl.user.blurb" ></textarea> <br />
+					<input type="submit" value="Update" />
+				</form>
+			
+			
+				<div class="view_splatt_feed" ng-show="loginCtrl.tab === 2" ng-controller="SplattFeedController as splatt_feed_control">
+					
+					<div class="splatt_posting_form_holder">
+						
+						<form ng-submit="splatt_feed_control.populate_splatts_feed(loginCtrl.user.user_id)">
+						<input type="submit" value="View Splatt Feed" />
+						</form>
+	
+					</div>
+	
+					<div class="indiv_splatt" ng-repeat="splatt in splatt_feed_control.splatts_feed">
+						<p>{{splatt.user_id}} posted</p> 
+						<p>{{splatt.body}}</p>
+						<p>at {{splatt.date_created | date}}
+					</div>
+				</div>
+
+				<div class="view_splatts_own" ng-show="loginCtrl.tab === 3" ng-controller="OwnSplattController as splatt_own_control">
+					
+					<div class="splatt_posting_form_holder">
+						
+						<form ng-submit="splatt_own_control.populate_splatts_own(loginCtrl.user.user_id)">
+						<input type="submit" value="View Own Splatts" />
+						</form>
+
+					</div>
+
+					<div class="indiv_splatt" ng-repeat="splatt in splatt_own_control.splatts_own">
+						<p>{{loginCtrl.user.name}} posted </p>
+						{{splatt.body}}
+						<p> at {{splatt.created_at}}
+					</div>
+				</div>
+
+				<div ng-controller="FollowControl as followCtrl" ng-show="loginCtrl.tab === 4">
+										
+					<div class="follow_form_holder">
+						
+						<form ng-submit="followCtrl.getFollowing(loginCtrl.user.user_id)">
+						<input type="submit" value="View Followers" />
+						</form>
+
+					</div>
+
+					<div class="indiv_splatt" ng-repeat="follower in followCtrl.followers">
+						<p>{{follower}} posted </p>
+					</div>
+				</div>
+
+				<div ng-controller="FollowControl as followCtrl" ng-show="loginCtrl.tab === 5">
+										
+					<div class="follow_form_holder">
+						
+						<form ng-submit="followCtrl.getFollowers(loginCtrl.user.user_id)">
+						<input type="submit" value="View Following" />
+						</form>
+
+					</div>
+
+					<div class="indiv_splatt" ng-repeat="following in followCtrl.following">
+						<p>{{follower}} posted </p>
+					</div>
+				</div>
+			</div>
+	</body>
+</html>
+
