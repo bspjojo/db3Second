@@ -79,24 +79,30 @@ class UsersController < ApplicationController
   #POST /users/follows
   #POST /users/follows
   def add_follows
-    @userOne = User.find(params[:id])
-    @userTwo = User.find(params[:follows_id])
+	@user = User.find(params[:id])
+	@follows = User.find(params[:follows_id])
 
-    @userOne.follows << @userTwo
-
-    head :no_content
+	if @user.follows << @follows and @follows.followers << @user
+		head :no_content
+		render json: @user.follows
+	else
+		render json: @user.errors, status: :unprocessable_entity
+	end
   end
 
   #deletes a follower from user1.followed_by
   #DELETE /users/follows/1/2
   #DELETE /users/follows/1/2.json
   def delete_follows 
-    @userOne = User.find(params[:id])
-    @userTwo = User.find(params[:follows_id])
-    
-    @userOne.follows.delete(@userTwo)
+	@user = User.find(params[:id])
+        @follows = User.find(params[:follows_id])
 
-    head :no_content
+        if @user.follows.delete << @follows and @follows.followers.delete << @user
+                head :no_content
+                render json: @user.follows
+        else
+                render json: @user.errors, status: :unprocessable_entity
+        end
   end
 
   #shows splattfeed for a particular user(shows splatts by the people they follow)
