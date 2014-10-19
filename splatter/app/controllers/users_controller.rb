@@ -53,8 +53,12 @@ class UsersController < ApplicationController
   # GET /users/splatts/1.json
   def splatts
     @user = User.find(params[:id])
-
-    render json: @user.splatts
+    
+    if @user.splatts
+        render json: @user.splatts
+    else
+        render json: @user.errors, status: :unprocessable_entity
+    end
   end
 
   #show who this user follows
@@ -63,7 +67,7 @@ class UsersController < ApplicationController
   def show_follows 
     @user = User.find(params[:id])
     
-    render json: @user.follows
+    render json: @user.follower_ids
   end
 
   #show who follows this user
@@ -72,7 +76,8 @@ class UsersController < ApplicationController
   def show_followers
     @user = User.find(params[:id])
 
-    render json: @user.followed_by
+    render json: @user.follow_ids
+
   end
 
   #user follows another user
@@ -83,7 +88,7 @@ class UsersController < ApplicationController
 	@follows = User.find(params[:follows_id])
 
 	if @user.follows << @follows and @follows.followers << @user
-		head :no_content
+#		head :no_content
 		render json: @user.follows
 	else
 		render json: @user.errors, status: :unprocessable_entity
@@ -97,7 +102,7 @@ class UsersController < ApplicationController
 	@user = User.find(params[:id])
         @follows = User.find(params[:follows_id])
 
-        if @user.follows.delete << @follows and @follows.followers.delete << @user
+        if @user.follows.delete(@follows) and @follows.followers.delete(@user)
                 head :no_content
                 render json: @user.follows
         else
@@ -108,9 +113,35 @@ class UsersController < ApplicationController
   #shows splattfeed for a particular user(shows splatts by the people they follow)
   #GET /users/splatts-feed/1
   def splatts_feed
-    @feed = Splatt.find_by_sql("select * from follows join Splatts on follows.followed_id = Splatts.user_id where follows.follower_id = #{params[:id]} order by Splatts.created_at DESC")
+      map = %Q{ function() {
+	  if(this.splatts) {
+	      emit("feed", {"list": this.splatts})
+	  }
+      }
+      }
 
+      reduce = %Q{function(key, values) {
+	  var myfeed = {"list": []};
+	  values.forEach(function(v) {
+	      myfeed.list = myfeed.list.concat(v.list);
+	  });
+	  return myFeed;
+      }
+      }
 
+      finalise = %Q{function(key, val) {
+	  var mylist = val.list;
+	  if(mylist) {
+	    mylist.sort(function(a, b) {
+	      return b.created_at - a.created_at});
+	  }
+	  return {"list": mylist};
+      }
+      }
+
+      user = User.find(params[:id])
+      result = User.in(id: user.follow_ids).map_reduce(map, reduce).out(inline:true).finalize(finalise)
+      render json: result.entries[0][:value][:list]
   end
 
 private
