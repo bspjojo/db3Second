@@ -12,18 +12,26 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
-    @user = User.find(params[:id])
+    db = UserRepository.new(Riak::Client.new)
+    @user = db.find(params[:id])
+    render json: @user
   end
 
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params(params[:user]))
+    @user = User.new
 
-    if @user.save
-      render json: @user, status: :created, location: @user
+    @user.email = params[:email]
+    @user.name = params[:name]
+    @user.password = params[:password]
+    @user.blurb = params[:blurb]
+
+    db = UserRepository.new(Riak::Client.new)
+    if db.save(@user)
+	render json: @user, status: :created, location: :@user
     else
-      render json: @user.errors, status: :unprocessable_entity
+	render json: "error", status: :unprocessable_entity
     end
   end
 
@@ -52,39 +60,45 @@ class UsersController < ApplicationController
   # GET /users/splatts/1
   # GET /users/splatts/1.json
   def splatts
-    @user = User.find(params[:id])
-
-    render json: @user.splatts
+	db = UserRepository.new(Riak::Client.new)
+	@user = db.find(params[:id])
+	db = SplattRepository.new(Riak::Client.new, @user)
+	render json: db.all
   end
 
   #show who this user follows
   #GET /users/follows/1
   #GET /users/follows/1.json
   def show_follows 
-    @user = User.find(params[:id])
-    
-    render json: @user.follows
+  db = UserRepository.new(Riak::Client.new)
+        @user = db.find(params[:id])
+  render json: @user.follows
   end
 
   #show who follows this user
   #GET /users/followed_by/1
   #GET /users/followed_by/1.json
   def show_followers
-    @user = User.find(params[:id])
+    db = UserRepository.new(Riak::Client.new)
+        @user = db.find(params[:id])
 
-    render json: @user.followed_by
+
+    render json: @user.followers
   end
 
   #user follows another user
   #POST /users/follows
   #POST /users/follows
   def add_follows
-    @userOne = User.find(params[:id])
-    @userTwo = User.find(params[:follows_id])
+    db = UserRepository.new(Riak::Client.new)
+    @follower = db.find(params[:id])
+    @followed = db.find(params[:follos_id])
 
-    @userOne.follows << @userTwo
-
-    head :no_content
+    if db.follow(@follower, @followed)
+      head :no_content
+    else
+      render json: "error saving follow relationship", status: :unprocessable_entity
+    end
   end
 
   #deletes a follower from user1.followed_by

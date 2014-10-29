@@ -1,5 +1,7 @@
 class Splatt < ActiveRecord::Base
-  belongs_to :user
 
-  validates :body, length: {minimum: 1}
+	property :id
+	property :body
+	property :created_at
+
 end
