@@ -2,10 +2,17 @@ Splatter::Application.routes.draw do
   resources :splatts, except: [:new, :edit]
   resources :users, except: [:new, :edit]
   get 'users/splatts/:id' => 'users#splatts'
-  get 'users/follow/:id' => 'users#show_follows'
-  get 'users/follower/:id' => 'users#show_followers'
-  post 'users/follows' => 'users#add_follows'
-  delete 'users/:id/:follows_id' => 'users#delete_follows'  
+
+
+  get 'users/follow/:id' => 'users#show_follows', :constraints=> { :id=>/[0-9a-zA-Z\-\.\@]+/}
+  get 'users/follower/:id' => 'users#show_followers', :constraints=> { :id=>/[0-9a-zA-Z\-\.\@]+/}
+
+  post 'users/follows' => 'users#add_follows', :constraints=> { :id=>/[0-9a-zA-Z\-\.\@]+/}
+
+  delete 'users/:id/:follows_id' => 'users#delete_follows', :constraints=> { :id=>/[0-9a-zA-Z\-\.\@]+/}
+
+
+
   get 'users/splatts-feed/:id' => 'users#splatts_feed'
 # had isrs/follows for the delete
 
